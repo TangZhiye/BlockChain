@@ -16,13 +16,13 @@ public class Transaction {
     public float value; //Contains the amount we wish to send to the recipient.
     public byte[] signature; //This is to prevent anybody else from spending funds in our wallet.
 
-    public ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
-    public ArrayList<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
+    public ArrayList<TxIn> inputs = new ArrayList<TxIn>();
+    public ArrayList<TxOut> outputs = new ArrayList<TxOut>();
 
     private static int sequence = 0; //A rough count of how many transactions have been generated
 
     // Constructor:
-    public Transaction(PublicKey from, PublicKey to, float value, ArrayList<TransactionInput> inputs) {
+    public Transaction(PublicKey from, PublicKey to, float value, ArrayList<TxIn> inputs) {
         this.sender = from;
         this.recipient = to;
         this.value = value;
@@ -36,7 +36,7 @@ public class Transaction {
             return false;
         }
         //Gather transaction inputs (Making sure they are unspent):
-        for(TransactionInput i : inputs) {
+        for(TxIn i : inputs) {
             i.UTXO = BlockChain.UTXOs.get(i.transactionOutputId);
         }
         //Check if transaction is valid:
@@ -47,14 +47,14 @@ public class Transaction {
         //Generate transaction outputs:
         float leftOver = getInputsValue() - value; //get value of inputs then the left over change:
         transactionId = calculateHash();
-        outputs.add(new TransactionOutput( this.recipient, value,transactionId)); //send value to recipient
-        outputs.add(new TransactionOutput( this.sender, leftOver,transactionId)); //send the left over 'change' back to sender
+        outputs.add(new TxOut( this.recipient, value,transactionId)); //send value to recipient
+        outputs.add(new TxOut( this.sender, leftOver,transactionId)); //send the left over 'change' back to sender
         //Add outputs to Unspent list
-        for(TransactionOutput o : outputs) {
+        for(TxOut o : outputs) {
             BlockChain.UTXOs.put(o.id , o);
         }
         //Remove transaction inputs from UTXO lists as spent:
-        for(TransactionInput i : inputs) {
+        for(TxIn i : inputs) {
             if(i.UTXO == null) continue; //if Transaction can't be found skip it
             BlockChain.UTXOs.remove(i.UTXO.id);
         }
@@ -63,7 +63,7 @@ public class Transaction {
 
     public float getInputsValue() {
         float total = 0;
-        for(TransactionInput i : inputs) {
+        for(TxIn i : inputs) {
             if(i.UTXO == null) continue; //if Transaction can't be found skip it, This behavior may not be optimal.
             total += i.UTXO.value;
         }
@@ -82,7 +82,7 @@ public class Transaction {
 
     public float getOutputsValue() {
         float total = 0;
-        for(TransactionOutput o : outputs) {
+        for(TxOut o : outputs) {
             total += o.value;
         }
         return total;

@@ -5,7 +5,7 @@ import com.groupproject.blockchain.utils.Sha256Util;
 
 import java.security.PublicKey;
 
-public class TransactionOutput {
+public class TxOut {
 
     public String id;
     public PublicKey recipient; //also known as the new owner of these coins.
@@ -13,7 +13,7 @@ public class TransactionOutput {
     public String parentTransactionId; //the id of the transaction this output was created in
 
     //Constructor
-    public TransactionOutput(PublicKey recipient, float value, String parentTransactionId) {
+    public TxOut(PublicKey recipient, float value, String parentTransactionId) {
         this.recipient = recipient;
         this.value = value;
         this.parentTransactionId = parentTransactionId;

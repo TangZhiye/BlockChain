@@ -1,10 +1,10 @@
 package com.groupproject.blockchain.bean;
 
-public class TransactionInput {
+public class TxIn {
     public String transactionOutputId; //Reference to TransactionOutputs -> transactionId
-    public TransactionOutput UTXO; //Contains the Unspent transaction output
+    public TxOut UTXO; //Contains the Unspent transaction output
 
-    public TransactionInput(String transactionOutputId) {
+    public TxIn(String transactionOutputId) {
         this.transactionOutputId = transactionOutputId;
     }
 }
