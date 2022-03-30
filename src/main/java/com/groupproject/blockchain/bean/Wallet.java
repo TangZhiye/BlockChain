@@ -59,7 +59,7 @@ public class Wallet {
         newTransaction.generateSignature(privateKey);
 
         for(TxIn input: inputs){
-            UTXOs.remove(input.transactionOutputId);
+            UTXOs.remove(input.transactionOutputId); // remove those UTXOs which already become input
         }
 
         return newTransaction;

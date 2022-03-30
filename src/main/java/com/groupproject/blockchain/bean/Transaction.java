@@ -20,6 +20,7 @@ public class Transaction {
     public ArrayList<TxOut> outputs = new ArrayList<TxOut>();
 
     private static int sequence = 0; //A rough count of how many transactions have been generated
+    public boolean isCoinbaseTx = false;
 
     // Constructor:
     public Transaction(PublicKey from, PublicKey to, float value, ArrayList<TxIn> inputs) {

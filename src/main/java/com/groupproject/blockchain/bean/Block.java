@@ -4,6 +4,7 @@ import com.groupproject.blockchain.utils.MerkleTreeUtil;
 import com.groupproject.blockchain.utils.Sha256Util;
 import com.groupproject.blockchain.utils.StringUtil;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -60,7 +61,9 @@ public class Block {
     //Add transactions to this block
     public boolean addTransaction(Transaction transaction) {
         //process transaction and check if valid, unless block is genesis block then ignore.
-        if (transaction == null) return false;
+        if (transaction == null || transactions.isEmpty()) {
+            System.out.println("Regular Transaction failed to add.");
+            return false;}
         if ((!previousHash.equals("0"))) {
             if ((!transaction.processTransaction())) {
                 System.out.println("Transaction failed to process. Discarded.");
@@ -68,7 +71,25 @@ public class Block {
             }
         }
         transactions.add(transaction);
-        System.out.println("Transaction Successfully added to Block");
+        System.out.println("Regular Transaction Successfully added to Block");
+        return true;
+    }
+
+    // Add coinbase transactions to this block
+    public boolean addCoinbaseTx(Wallet wallet){
+        if(!transactions.isEmpty()) {
+            System.out.println("Coinbase Transaction failed to add.");
+            return false;}
+        Wallet coinbase = new Wallet();
+        Transaction coinbaseTx = new Transaction(coinbase.publicKey, wallet.publicKey, 50f, null);
+        coinbaseTx.isCoinbaseTx = true;
+        coinbaseTx.generateSignature(coinbase.privateKey);	 //manually sign the genesis transaction
+        coinbaseTx.transactionId = "0"; //manually set the transaction id
+        coinbaseTx.outputs.add(new TxOut(coinbaseTx.recipient, coinbaseTx.value, coinbaseTx.transactionId)); //manually add the Transactions Output
+        transactions.add(coinbaseTx);
+        //Store coinbase transaction in the BlockChain UTXOs list.
+        BlockChain.UTXOs.put(coinbaseTx.outputs.get(0).id, coinbaseTx.outputs.get(0));
+        System.out.println("Coinbase Transaction Successfully added to Block");
         return true;
     }
 }
