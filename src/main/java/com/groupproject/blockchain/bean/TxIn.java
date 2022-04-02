@@ -7,4 +7,12 @@ public class TxIn {
     public TxIn(String transactionOutputId) {
         this.transactionOutputId = transactionOutputId;
     }
+
+    @Override
+    public String toString() {
+        return "TxIn{" +
+                "transactionOutputId='" + transactionOutputId + '\'' +
+                ", UTXO=" +
+                '}';
+    }
 }

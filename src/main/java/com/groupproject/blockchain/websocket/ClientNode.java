@@ -127,7 +127,7 @@ public class ClientNode extends WebSocketClient {
 
 
     //What does the client node do after startup?
-    // 1. Get current blockchain from the other running blocks
+    // 1. Get current blockchain from the other running nodes
     // 2. If there is no blockchain yet -> create genesis block
     // 3. Listen to incoming transactions and store them in an array
     // 4. When there are enough transactions -> create a new block

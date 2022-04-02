@@ -1,5 +1,6 @@
 package com.groupproject.blockchain.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.groupproject.blockchain.utils.MerkleTreeUtil;
 import com.groupproject.blockchain.utils.Sha256Util;
 import com.groupproject.blockchain.utils.StringUtil;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 //Block Structure
+@JsonIgnoreProperties({"transactions"})
 public class Block implements Serializable {
     //The height of block, start from 0
     public int index;
@@ -101,5 +103,11 @@ public class Block implements Serializable {
         BlockChain.UTXOs.put(coinbaseTx.outputs.get(0).id, coinbaseTx.outputs.get(0));
         System.out.println("Coinbase Transaction Successfully added to Block");
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Block{" +
+                "index=" + index;
     }
 }

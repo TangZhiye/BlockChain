@@ -1,6 +1,7 @@
 package com.groupproject.blockchain.bean;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.groupproject.blockchain.utils.RSAUtils;
 import com.groupproject.blockchain.utils.Sha256Util;
 
@@ -9,6 +10,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 
+@JsonIgnoreProperties({"signature", "inputs", "outputs", "sender", "recipient" })
 public class Transaction implements Serializable {
 
     public String transactionId; //Contains a hash of transaction*
@@ -27,6 +29,7 @@ public class Transaction implements Serializable {
     public Transaction(){
 
     }
+
     // Constructor:
     public Transaction(PublicKey from, PublicKey to, float value, ArrayList<TxIn> inputs) {
         this.sender = from;

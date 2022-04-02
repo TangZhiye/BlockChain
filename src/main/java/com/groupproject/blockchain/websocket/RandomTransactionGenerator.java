@@ -1,10 +1,11 @@
 package com.groupproject.blockchain.websocket;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupproject.blockchain.Tools.MessageBean;
 import com.groupproject.blockchain.Tools.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.groupproject.blockchain.bean.Block;
 import com.groupproject.blockchain.bean.Wallet;
 import org.java_websocket.client.WebSocketClient;
@@ -48,20 +49,21 @@ public class RandomTransactionGenerator extends WebSocketClient {
             e.printStackTrace();
         }
     }
-    public void broadBlock(Block block){
+    public void broadBlock(Block block)  {
+         ObjectMapper objectMapper = new ObjectMapper();
+        // transfer the transaction data to String
+        String blockData = null;
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            // transfer the transaction data to String
-            String blockData = objectMapper.writeValueAsString(block);
-            //put string into the message bean
-            MessageBean messageBean = new MessageBean(2, blockData);
-
-            String msg = objectMapper.writeValueAsString(messageBean);
-            send(msg);
-
+            blockData = objectMapper.writeValueAsString(block);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+        //put string into the message bean
+        MessageBean messageBean = new MessageBean(2, blockData);
+
+        String msg = block.toString();
+        send(msg);
+
     }
 
 
