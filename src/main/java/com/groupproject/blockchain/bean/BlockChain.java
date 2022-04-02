@@ -3,13 +3,18 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.groupproject.blockchain.bean.PoW.getDifficulty;
+
 public class BlockChain {
     //store block in arraylist
     public static ArrayList<Block> blockChain = new ArrayList<Block>();
     public static HashMap<String, TxOut> UTXOs = new HashMap<String, TxOut>();
 
-    public static int difficulty = 3;
     public static float minimumTransaction = 0.1f;
+
+    //Config for the Blockchain
+    public static final int blockGenerationInterval = 10; // we expect that evey 10 seconds we find a block
+    public static final int  diffAdjustInterval= 1; // defines how often the difficulty should be adjusted with the increasing or decreasing network hashrate.
 
     public static void main(String[] args) {
         //Setup Bouncy castle as a Security Provider
@@ -18,10 +23,10 @@ public class BlockChain {
         Wallet walletA = new Wallet();
         Wallet walletB = new Wallet();
         //generate genesis block
-        Block genesisBlock = new Block("0", 0);
+        Block genesisBlock = new Block("0", 0, 1);
         genesisBlock.addCoinbaseTx(walletA);
 //        genesisBlock.addTransaction(genesisTransaction);
-        genesisBlock.mineBlock(difficulty);
+        genesisBlock.mineBlock();
         blockChain.add(genesisBlock);
 
         //testing
@@ -31,7 +36,7 @@ public class BlockChain {
         block1.addCoinbaseTx(walletA);
         block1.addTransaction(walletA.sendFunds(walletB.publicKey, 20f));
         block1.addTransaction(walletA.sendFunds(walletB.publicKey, 10f));
-        block1.mineBlock(difficulty);
+        block1.mineBlock();
         blockChain.add(block1);
         System.out.println("\nWalletA's balance is: " + walletA.getBalance()); //20
         System.out.println("WalletB's balance is: " + walletB.getBalance()); //30
@@ -40,7 +45,7 @@ public class BlockChain {
         Block block2 = generateNextBlock();
         block2.addCoinbaseTx(walletA);
         block2.addTransaction(walletA.sendFunds(walletB.publicKey, 1000f));
-        block2.mineBlock(difficulty);
+        block2.mineBlock();
         blockChain.add(block2);
         System.out.println("\nWalletA's balance is: " + walletA.getBalance()); //70
         System.out.println("WalletB's balance is: " + walletB.getBalance()); //30
@@ -48,7 +53,7 @@ public class BlockChain {
         System.out.println("\nWalletB is Attempting to send funds (20) to WalletA...");
         Block block3 = generateNextBlock();
         block3.addTransaction(walletB.sendFunds( walletA.publicKey, 20)); //fail cuz no coinbase Tx
-        block3.mineBlock(difficulty);
+        block3.mineBlock();
         blockChain.add(block3);
         System.out.println("\nWalletA's balance is: " + walletA.getBalance()); //70
         System.out.println("WalletB's balance is: " + walletB.getBalance()); //30
@@ -70,7 +75,20 @@ public class BlockChain {
         Block previousBlock = blockChain.get(blockChain.size()-1);
         int nextIndex = previousBlock.index+1;
         String previousHash = blockChain.get(blockChain.size()-1).hash;
-        Block newBlock = new Block(previousHash, nextIndex);
+
+        //generate the new difficulty for the block -> store the difficulty in the block
+
+        int difficulty;
+        if (nextIndex > 2){
+            Block prePreviousBlock = blockChain.get(blockChain.size()-2);
+            difficulty = getDifficulty(prePreviousBlock.timeStamp,previousBlock.timeStamp,previousBlock.difficulty,previousBlock.index,blockGenerationInterval,diffAdjustInterval);
+        } else{
+            difficulty = 1;
+
+        };
+
+        //Here: you have to set the difficulty based on the blocks
+        Block newBlock = new Block(previousHash, nextIndex, difficulty);
         return newBlock;
     }
 

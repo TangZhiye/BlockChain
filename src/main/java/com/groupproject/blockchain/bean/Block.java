@@ -22,14 +22,17 @@ public class Block {
     public int nonce;
     //Store transactions
     public ArrayList<Transaction> transactions = new ArrayList<Transaction>();
+    //Difficulty
+    public int difficulty;
 
     //Block constructor
-    public Block(String previousHash, int index){
+    public Block(String previousHash, int index, int difficulty){
         this.index = index;
         this.timeStamp = new Date().getTime()/1000;
         this.hash = getHash();
         this.previousHash = previousHash;
-//        this.data = data;
+        this.difficulty = difficulty;
+        //this.data = data;
     }
 
     //Block Hash
@@ -48,7 +51,9 @@ public class Block {
     }
 
     //Increases nonce value until hash target is reached.
-    public void mineBlock(int difficulty) {
+    public void mineBlock() {
+
+        int difficulty = this.difficulty;
         data = MerkleTreeUtil.getMerkleRoot(transactions);
         String target = StringUtil.getDifficultyString(difficulty); //Create a string with difficulty * "0"
         while (!hash.substring(0, difficulty).equals(target)) {
