@@ -4,11 +4,12 @@ package com.groupproject.blockchain.bean;
 import com.groupproject.blockchain.utils.RSAUtils;
 import com.groupproject.blockchain.utils.Sha256Util;
 
+import java.io.Serializable;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 
-public class Transaction {
+public class Transaction implements Serializable {
 
     public String transactionId; //Contains a hash of transaction*
     public PublicKey sender; //Senders address/public key.
@@ -22,6 +23,10 @@ public class Transaction {
     private static int sequence = 0; //A rough count of how many transactions have been generated
     public boolean isCoinbaseTx = false;
 
+    //Bean Constructor
+    public Transaction(){
+
+    }
     // Constructor:
     public Transaction(PublicKey from, PublicKey to, float value, ArrayList<TxIn> inputs) {
         this.sender = from;

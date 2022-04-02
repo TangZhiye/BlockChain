@@ -4,12 +4,13 @@ import com.groupproject.blockchain.utils.MerkleTreeUtil;
 import com.groupproject.blockchain.utils.Sha256Util;
 import com.groupproject.blockchain.utils.StringUtil;
 
+import java.io.Serializable;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Date;
 
 //Block Structure
-public class Block {
+public class Block implements Serializable {
     //The height of block, start from 0
     public int index;
     //UnixTime
@@ -25,6 +26,10 @@ public class Block {
     //Difficulty
     public int difficulty;
 
+    //Bean Constructor
+    public  Block(){
+
+    }
     //Block constructor
     public Block(String previousHash, int index, int difficulty){
         this.index = index;

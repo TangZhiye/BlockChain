@@ -17,6 +17,7 @@ import java.util.HashMap;
 import static com.groupproject.blockchain.bean.PoW.getDifficulty;
 
 public class ClientNode extends WebSocketClient {
+
     private String name;
     public ArrayList<Block> blockChain = new ArrayList<Block>();
     public HashMap<String, TxOut> UTXOs = new HashMap<String, TxOut>();
@@ -125,13 +126,31 @@ public class ClientNode extends WebSocketClient {
     }
 
 
+    //What does the client node do after startup?
+    // 1. Get current blockchain from the other running blocks
+    // 2. If there is no blockchain yet -> create genesis block
+    // 3. Listen to incoming transactions and store them in an array
+    // 4. When there are enough transactions -> create a new block
+    // 5. Store the new block in the blockchain
+    // 6. Broadcast the new block
+
+
+    //Helper Methods
+    //Get longest Chain -> iterate through the array and get the last block of the longest path
+
+
+    //Steps:
+    //1. Create communication in the client node
+        //a) Client node must be able to receive the whole blockchain during startup
+        //b) Client nodes listens to incoming transactions -> if there are two -> creates new block
+        //c) After the mining is successful -> client node broadcasts its block to the blockchain
 
 
     public static void main(String[] args) {
         URI uri = null;
         try {
             uri = new URI("ws://localhost:8082");
-            MyClient client1 = new MyClient(uri, "client1");
+            RandomTransactionGenerator client1 = new RandomTransactionGenerator(uri, "client1");
             client1.connect();
             Thread.sleep(1000);
             //The transaction is just a sample test, you can replace with our new Transaction class

@@ -5,16 +5,19 @@ import com.groupproject.blockchain.Tools.MessageBean;
 import com.groupproject.blockchain.Tools.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.groupproject.blockchain.bean.Block;
+import com.groupproject.blockchain.bean.Wallet;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Security;
 
-public class MyClient extends WebSocketClient {
+public class RandomTransactionGenerator extends WebSocketClient {
     private String name;
 
-    public MyClient(URI serverUri, String name) {
+    public RandomTransactionGenerator(URI serverUri, String name) {
         super(serverUri);
         this.name = name;
     }
@@ -45,6 +48,21 @@ public class MyClient extends WebSocketClient {
             e.printStackTrace();
         }
     }
+    public void broadBlock(Block block){
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            // transfer the transaction data to String
+            String blockData = objectMapper.writeValueAsString(block);
+            //put string into the message bean
+            MessageBean messageBean = new MessageBean(2, blockData);
+
+            String msg = objectMapper.writeValueAsString(messageBean);
+            send(msg);
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 
@@ -63,13 +81,30 @@ public class MyClient extends WebSocketClient {
     public static void main(String[] args) {
         URI uri = null;
         try {
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+            //1. Create new Wallets
+            Wallet walletA = new Wallet();
+            Wallet walletB = new Wallet();
+            //2. Generate Genesis Block
+            Block genesisBlock = new Block("0", 0, 1);
+            genesisBlock.addCoinbaseTx(walletA);
+            genesisBlock.mineBlock();
+
+            // Generate Connection
             uri = new URI("ws://localhost:8082");
-            MyClient client1 = new MyClient(uri, "client1");
+            RandomTransactionGenerator client1 = new RandomTransactionGenerator(uri, "client1");
             client1.connect();
             Thread.sleep(1000);
+
+            //Transfer Block
+           client1.broadBlock(genesisBlock);
+
+
             //The transaction is just a sample test, you can replace with our new Transaction class
+/*
             Transaction transaction = new Transaction(1,"sasa");
             client1.broadTransaction(transaction);
+*/
         } catch (URISyntaxException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

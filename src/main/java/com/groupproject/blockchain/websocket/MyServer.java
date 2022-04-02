@@ -4,6 +4,7 @@ package com.groupproject.blockchain.websocket;
 import com.groupproject.blockchain.Tools.MessageBean;
 import com.groupproject.blockchain.Tools.Transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.groupproject.blockchain.bean.Block;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -44,6 +45,9 @@ public class MyServer extends WebSocketServer {
             }
             else if(messageBean.type == 2){
                 //do the block job
+                System.out.println(messageBean.msg);
+                Block block = objectMapper.readValue(messageBean.msg, Block.class);
+                System.out.println(block.toString());
             }
         } catch (IOException e) {
             e.printStackTrace();
