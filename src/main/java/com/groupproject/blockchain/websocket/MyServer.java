@@ -11,10 +11,13 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MyServer extends WebSocketServer {
 
     private int port;
+    private Map<String,WebSocket> clientMap = new HashMap<String,WebSocket>();
 
     public MyServer(int port) {
         super(new InetSocketAddress(port));
@@ -25,6 +28,7 @@ public class MyServer extends WebSocketServer {
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         System.out.println(conn.getRemoteSocketAddress()  + "close");
+        clientMap.remove(conn.getRemoteSocketAddress().toString());
     }
 
 
@@ -40,15 +44,31 @@ public class MyServer extends WebSocketServer {
             //  2 -- > 区块
             if(messageBean.type == 1){
                 System.out.println(messageBean.msg);
+/*
                 Transaction transaction = objectMapper.readValue(messageBean.msg, Transaction.class);
-                System.out.println(transaction.toString());
+*/
+                for(Map.Entry entry : clientMap.entrySet()){
+                    if(!conn.getRemoteSocketAddress().toString().equals(((String) entry.getKey()))){
+
+                        WebSocket currentClient = (WebSocket) entry.getValue();
+                        currentClient.send(message);
+                    }
+                }
             }
             else if(messageBean.type == 2){
                 //do the block job
                 System.out.println(messageBean.msg);
+/*
                 Block block = objectMapper.readValue(messageBean.msg, Block.class);
-                System.out.println(block.toString());
+*/
+                for(Map.Entry entry : clientMap.entrySet()){
+                    if(!conn.getRemoteSocketAddress().toString().equals(((String) entry.getKey()))){
+                        WebSocket currentClient = (WebSocket) entry.getValue();
+                        currentClient.send(message);
+                    }
+                }
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -73,6 +93,7 @@ public class MyServer extends WebSocketServer {
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
         System.out.println(webSocket.getRemoteSocketAddress() + "connect successfully");
         System.out.println("open the server");
+        clientMap.put(webSocket.getRemoteSocketAddress().toString(), webSocket);
     }
 
     public static void main(String[] args) {

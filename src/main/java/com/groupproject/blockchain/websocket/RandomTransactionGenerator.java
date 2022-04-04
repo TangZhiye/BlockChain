@@ -3,10 +3,10 @@ package com.groupproject.blockchain.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupproject.blockchain.Tools.MessageBean;
-import com.groupproject.blockchain.Tools.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.groupproject.blockchain.bean.Block;
+import com.groupproject.blockchain.bean.Transaction;
 import com.groupproject.blockchain.bean.Wallet;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -55,14 +55,14 @@ public class RandomTransactionGenerator extends WebSocketClient {
         String blockData = null;
         try {
             blockData = objectMapper.writeValueAsString(block);
+            //put string into the message bean
+            MessageBean messageBean = new MessageBean(2, blockData);
+            String msg = objectMapper.writeValueAsString(messageBean);
+            send(msg);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        //put string into the message bean
-        MessageBean messageBean = new MessageBean(2, blockData);
 
-        String msg = block.toString();
-        send(msg);
 
     }
 
@@ -100,6 +100,18 @@ public class RandomTransactionGenerator extends WebSocketClient {
 
             //Transfer Block
            client1.broadBlock(genesisBlock);
+
+
+           int x = 0;
+           while(x<2){
+               x++;
+               client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
+               client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
+               client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
+               client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
+               client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
+
+           }
 
 
             //The transaction is just a sample test, you can replace with our new Transaction class

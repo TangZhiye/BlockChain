@@ -1,5 +1,7 @@
 package com.groupproject.blockchain.bean;
 
+import com.groupproject.blockchain.utils.RSAUtils;
+
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 import java.util.ArrayList;
@@ -51,7 +53,7 @@ public class Wallet {
             if(total > value) break;
         }
 
-        Transaction newTransaction = new Transaction(publicKey, recipient , value, inputs);
+        Transaction newTransaction = new Transaction(RSAUtils.getStringFromKey(publicKey), publicKey, RSAUtils.getStringFromKey(recipient), value, inputs);
         // This signature ensured the transaction is only valid if a wallet only gather its own UTXOs in transaction.
         // If a evil wallet try to gather UTXOs with others public key, he can put it in transaction,
         // but only can sign with his own private key. When adding this transaction into block and
@@ -70,7 +72,7 @@ public class Wallet {
         float total = 0;
         for (Map.Entry<String, TxOut> item: BlockChain.UTXOs.entrySet()){
             TxOut UTXO = item.getValue();
-            if(UTXO.isMine(publicKey)) { //if output belongs to me ( if coins belong to me )
+            if(UTXO.isMine(RSAUtils.getStringFromKey(publicKey))) { //if output belongs to me ( if coins belong to me )
                 UTXOs.put(UTXO.id,UTXO); //add it to our list of unspent transactions.
                 total += UTXO.value ;
             }

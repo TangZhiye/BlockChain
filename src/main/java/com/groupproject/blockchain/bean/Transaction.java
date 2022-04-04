@@ -10,12 +10,13 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 
-@JsonIgnoreProperties({"signature", "inputs", "outputs", "sender", "recipient" })
+@JsonIgnoreProperties({"senderObject"})
 public class Transaction implements Serializable {
 
     public String transactionId; //Contains a hash of transaction*
-    public PublicKey sender; //Senders address/public key.
-    public PublicKey recipient; //Recipients address/public key.
+    public String sender; //Senders address/public key.
+    public PublicKey senderObject; //Senders address/public key.
+    public String recipient; //Recipients address/public key.
     public float value; //Contains the amount we wish to send to the recipient.
     public byte[] signature; //This is to prevent anybody else from spending funds in our wallet.
 
@@ -30,12 +31,20 @@ public class Transaction implements Serializable {
 
     }
 
+    //For Coinbase Transactions
+    public Transaction(String from, PublicKey senderObject, String to, float value) {
+        this.sender = from;
+        this.recipient = to;
+        this.value = value;
+        this.senderObject = senderObject;
+    }
     // Constructor:
-    public Transaction(PublicKey from, PublicKey to, float value, ArrayList<TxIn> inputs) {
+    public Transaction(String from, PublicKey senderObject, String to, float value, ArrayList<TxIn> inputs) {
         this.sender = from;
         this.recipient = to;
         this.value = value;
         this.inputs = inputs;
+        this.senderObject = senderObject;
     }
 
     // Called when adding transaction to block
@@ -49,12 +58,12 @@ public class Transaction implements Serializable {
             i.UTXO = BlockChain.UTXOs.get(i.transactionOutputId);
         }
         //Check if transaction is valid:
-        if(getInputsValue() < BlockChain.minimumTransaction) {
-            System.out.println("Transaction Inputs to small: " + getInputsValue());
+        if(returnInputsValue() < BlockChain.minimumTransaction) {
+            System.out.println("Transaction Inputs to small: " + returnInputsValue());
             return false;
         }
         //Generate transaction outputs:
-        float leftOver = getInputsValue() - value; //get value of inputs then the left over change:
+        float leftOver = returnInputsValue() - value; //get value of inputs then the left over change:
         transactionId = calculateHash();
         outputs.add(new TxOut( this.recipient, value,transactionId)); //send value to recipient
         outputs.add(new TxOut( this.sender, leftOver,transactionId)); //send the left over 'change' back to sender
@@ -70,7 +79,7 @@ public class Transaction implements Serializable {
         return true;
     }
 
-    public float getInputsValue() {
+    public float returnInputsValue() {
         float total = 0;
         for(TxIn i : inputs) {
             if(i.UTXO == null) continue; //if Transaction can't be found skip it, This behavior may not be optimal.
@@ -80,16 +89,16 @@ public class Transaction implements Serializable {
     }
 
     public void generateSignature(PrivateKey privateKey) {
-        String data = RSAUtils.getStringFromKey(sender) + RSAUtils.getStringFromKey(recipient) + Float.toString(value);
+        String data = sender + recipient + Float.toString(value);
         signature = RSAUtils.getSignature("ECDSA", privateKey, data);
     }
 
     public boolean verifySignature() {
-        String data = RSAUtils.getStringFromKey(sender) + RSAUtils.getStringFromKey(recipient) + Float.toString(value);
-        return RSAUtils.verifySignature("ECDSA", sender, data, signature);
+        String data = sender + recipient + Float.toString(value);
+        return RSAUtils.verifySignature("ECDSA", senderObject, data, signature);
     }
 
-    public float getOutputsValue() {
+    public float returnOutputsValue() {
         float total = 0;
         for(TxOut o : outputs) {
             total += o.value;
@@ -99,8 +108,7 @@ public class Transaction implements Serializable {
 
     private String calculateHash() {
         sequence++; //increase the sequence to avoid 2 identical transactions having the same hash
-        return Sha256Util.applySha256(RSAUtils.getStringFromKey(sender) +
-                RSAUtils.getStringFromKey(recipient) +
-                Float.toString(value) + sequence);
+        return Sha256Util.applySha256(sender+
+                recipient + Float.toString(value) + sequence);
     }
 }

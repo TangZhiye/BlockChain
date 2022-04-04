@@ -1,9 +1,14 @@
 package com.groupproject.blockchain.bean;
 
-public class TxIn {
+import java.io.Serializable;
+
+public class TxIn implements Serializable {
     public String transactionOutputId; //Reference to TransactionOutputs -> transactionId
     public TxOut UTXO; //Contains the Unspent transaction output
 
+    public TxIn(){
+
+    }
     public TxIn(String transactionOutputId) {
         this.transactionOutputId = transactionOutputId;
     }

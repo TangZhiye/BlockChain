@@ -3,14 +3,17 @@ package com.groupproject.blockchain.websocket;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupproject.blockchain.Tools.MessageBean;
-import com.groupproject.blockchain.Tools.Transaction;
 import com.groupproject.blockchain.bean.Block;
+import com.groupproject.blockchain.bean.Transaction;
 import com.groupproject.blockchain.bean.TxOut;
+import com.groupproject.blockchain.bean.Wallet;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,16 +25,22 @@ public class ClientNode extends WebSocketClient {
     public ArrayList<Block> blockChain = new ArrayList<Block>();
     public HashMap<String, TxOut> UTXOs = new HashMap<String, TxOut>();
 
-    public float minimumTransaction = 0.1f;
 
+    //Wallet des Client Nodes
+    Wallet wallet;
     //Config for the Blockchain
     public final int blockGenerationInterval = 10; // we expect that evey 10 seconds we find a block
     public final int  diffAdjustInterval= 1; // defines how often the difficulty should be adjusted with the increasing or decreasing network hashrate.
+    public final int transactionsPerBlock = 3;
+    public float minimumTransaction = 0.1f;
+
 
     public ArrayList<Transaction> transactionPool = new ArrayList<Transaction>();
-    public ClientNode(URI serverUri, String name) {
+    public ClientNode(URI serverUri, String name, Wallet wallet) {
         super(serverUri);
         this.name = name;
+        this.wallet = wallet;
+
 
     }
 
@@ -39,16 +48,68 @@ public class ClientNode extends WebSocketClient {
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
         System.out.println("open the connection");
+
     }
 
     @Override
     public void onMessage(String message) {
         System.out.println("client:" + name + "receive message:" + message);
+        try {
+            //1. transfer message to bean
+            ObjectMapper objectMapper = new ObjectMapper();
+            MessageBean messageBean = objectMapper.readValue(message, MessageBean.class);
+            //2. According to the bean.type do different transfer job
+            //  1 -- > Transaction
+            //  2 -- > 区块
+            if(messageBean.type == 1){
+                //Return current blockchain
+                System.out.println(messageBean.msg);
+                Transaction transaction = objectMapper.readValue(messageBean.msg, Transaction.class);
+                transactionPool.add(transaction);
+                System.out.println(transaction.toString());
+                if (transactionPool.size() > transactionsPerBlock){
+                    Block block = generateNextBlock();
+                    block.addCoinbaseTx(this.wallet);
+                    for (Transaction currentTransaction: transactionPool){
+                        block.addTransaction(currentTransaction);
+                        transactionPool.remove(currentTransaction);
+                    }
+                    block.mineBlock();
+                    blockChain.add(block);
+                    broadBlock(block);
+
+
+                }
+            }
+            else if(messageBean.type == 2){
+                System.out.println(messageBean.msg);
+                Block block = objectMapper.readValue(messageBean.msg, Block.class);
+                blockChain.add(block);
+                isValidNewBlock();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
     }
 
-    public void broadTransaction(Transaction transaction) {
+    public void broadBlock(Block block) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        // transfer the transaction data to String
+        String blockData = null;
+        try {
+            blockData = objectMapper.writeValueAsString(block);
+            //put string into the message bean
+            MessageBean messageBean = new MessageBean(2, blockData);
+            String msg = objectMapper.writeValueAsString(messageBean);
+            send(msg);
+            System.out.println("Broadcasted new Block to the network");
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+        public void broadTransaction(Transaction transaction) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             // transfer the transaction data to String
@@ -151,11 +212,11 @@ public class ClientNode extends WebSocketClient {
         try {
             uri = new URI("ws://localhost:8082");
             RandomTransactionGenerator client1 = new RandomTransactionGenerator(uri, "client1");
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
             client1.connect();
             Thread.sleep(1000);
             //The transaction is just a sample test, you can replace with our new Transaction class
-            Transaction transaction = new Transaction(1,"sasa");
-            client1.broadTransaction(transaction);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

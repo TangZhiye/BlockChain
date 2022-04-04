@@ -2,6 +2,7 @@ package com.groupproject.blockchain.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.groupproject.blockchain.utils.MerkleTreeUtil;
+import com.groupproject.blockchain.utils.RSAUtils;
 import com.groupproject.blockchain.utils.Sha256Util;
 import com.groupproject.blockchain.utils.StringUtil;
 
@@ -11,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 //Block Structure
-@JsonIgnoreProperties({"transactions"})
 public class Block implements Serializable {
     //The height of block, start from 0
     public int index;
@@ -93,7 +93,7 @@ public class Block implements Serializable {
             System.out.println("Coinbase Transaction failed to add.");
             return false;}
         Wallet coinbase = new Wallet();
-        Transaction coinbaseTx = new Transaction(coinbase.publicKey, wallet.publicKey, 50f, null);
+        Transaction coinbaseTx = new Transaction(RSAUtils.getStringFromKey(coinbase.publicKey), coinbase.publicKey, RSAUtils.getStringFromKey(wallet.publicKey), 50f );
         coinbaseTx.isCoinbaseTx = true;
         coinbaseTx.generateSignature(coinbase.privateKey);	 //manually sign the genesis transaction
         coinbaseTx.transactionId = "0"; //manually set the transaction id
