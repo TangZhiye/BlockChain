@@ -1,5 +1,6 @@
 package com.groupproject.blockchain.websocket;
 
+import ch.qos.logback.core.net.server.Client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupproject.blockchain.Tools.MessageBean;
@@ -53,7 +54,7 @@ public class ClientNode extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
-        System.out.println("client:" + name + "receive message:" + message);
+        System.out.println("client: " + name + " receive message:" + message);
         try {
             //1. transfer message to bean
             ObjectMapper objectMapper = new ObjectMapper();
@@ -67,7 +68,7 @@ public class ClientNode extends WebSocketClient {
                 Transaction transaction = objectMapper.readValue(messageBean.msg, Transaction.class);
                 transactionPool.add(transaction);
                 System.out.println(transaction.toString());
-                if (transactionPool.size() > transactionsPerBlock){
+                if (transactionPool.size() >= transactionsPerBlock){
                     Block block = generateNextBlock();
                     block.addCoinbaseTx(this.wallet);
                     for (Transaction currentTransaction: transactionPool){
@@ -210,9 +211,10 @@ public class ClientNode extends WebSocketClient {
     public static void main(String[] args) {
         URI uri = null;
         try {
-            uri = new URI("ws://localhost:8082");
-            RandomTransactionGenerator client1 = new RandomTransactionGenerator(uri, "client1");
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+            uri = new URI("ws://localhost:8082");
+            Wallet walletA = new Wallet();
+            ClientNode client1 = new ClientNode(uri, "client1", walletA);
 
             client1.connect();
             Thread.sleep(1000);

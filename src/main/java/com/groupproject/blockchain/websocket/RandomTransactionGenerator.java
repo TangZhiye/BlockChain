@@ -101,8 +101,9 @@ public class RandomTransactionGenerator extends WebSocketClient {
             //Transfer Block
            client1.broadBlock(genesisBlock);
 
+            client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
 
-           int x = 0;
+            int x = 0;
            while(x<2){
                x++;
                client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
@@ -112,6 +113,7 @@ public class RandomTransactionGenerator extends WebSocketClient {
                client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
 
            }
+           Thread.sleep(5000);
 
 
             //The transaction is just a sample test, you can replace with our new Transaction class

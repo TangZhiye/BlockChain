@@ -35,6 +35,7 @@ public class MyServer extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         System.out.println("receive message from" + conn.getRemoteSocketAddress());
+        System.out.println("ANother test");
         try {
             //1. transfer message to bean
             ObjectMapper objectMapper = new ObjectMapper();
