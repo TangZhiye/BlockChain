@@ -4,10 +4,7 @@ import ch.qos.logback.core.net.server.Client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupproject.blockchain.Tools.MessageBean;
-import com.groupproject.blockchain.bean.Block;
-import com.groupproject.blockchain.bean.Transaction;
-import com.groupproject.blockchain.bean.TxOut;
-import com.groupproject.blockchain.bean.Wallet;
+import com.groupproject.blockchain.bean.*;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -18,13 +15,16 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.groupproject.blockchain.bean.BlockChain.blockChain;
 import static com.groupproject.blockchain.bean.PoW.getDifficulty;
 
 public class ClientNode extends WebSocketClient {
 
     private String name;
+/*
     public ArrayList<Block> blockChain = new ArrayList<Block>();
     public HashMap<String, TxOut> UTXOs = new HashMap<String, TxOut>();
+*/
 
 
     //Wallet des Client Nodes
@@ -32,7 +32,7 @@ public class ClientNode extends WebSocketClient {
     //Config for the Blockchain
     public final int blockGenerationInterval = 10; // we expect that evey 10 seconds we find a block
     public final int  diffAdjustInterval= 1; // defines how often the difficulty should be adjusted with the increasing or decreasing network hashrate.
-    public final int transactionsPerBlock = 3;
+    public final int transactionsPerBlock = 1;
     public float minimumTransaction = 0.1f;
 
 

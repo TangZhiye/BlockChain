@@ -6,6 +6,7 @@ import com.groupproject.blockchain.Tools.MessageBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.groupproject.blockchain.bean.Block;
+import com.groupproject.blockchain.bean.BlockChain;
 import com.groupproject.blockchain.bean.Transaction;
 import com.groupproject.blockchain.bean.Wallet;
 import org.java_websocket.client.WebSocketClient;
@@ -92,6 +93,7 @@ public class RandomTransactionGenerator extends WebSocketClient {
             Block genesisBlock = new Block("0", 0, 1);
             genesisBlock.addCoinbaseTx(walletA);
             genesisBlock.mineBlock();
+            System.out.println("Wallet A: " + walletA.getBalance()+ "Wallet B: " + walletB.getBalance());
 
             // Generate Connection
             uri = new URI("ws://localhost:8082");
@@ -99,18 +101,19 @@ public class RandomTransactionGenerator extends WebSocketClient {
             client1.connect();
             Thread.sleep(1000);
 
+            BlockChain.blockChain.add(genesisBlock);
             //Transfer Block
            client1.broadBlock(genesisBlock);
 
             client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
-
+            System.out.println("Wallet A: " + walletA.getBalance()+ "Wallet B: " + walletB.getBalance());
             int x = 0;
-           while(x<2){
+           while(x<4){
                x++;
+               client1.broadTransaction(walletB.sendFunds(walletA.publicKey, 5f));
+               System.out.println("Wallet A: " + walletA.getBalance()+ "Wallet B: " + walletB.getBalance());
                client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
-               client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
-               client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
-               client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
+               System.out.println("Wallet A: " + walletA.getBalance()+ "Wallet B: " + walletB.getBalance());
                client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
 
            }
