@@ -95,7 +95,7 @@ public class Transaction implements Serializable {
 
     public boolean verifySignature() {
         String data = sender + recipient + Float.toString(value);
-        return RSAUtils.verifySignature("ECDSA", senderObject, data, signature);
+        return RSAUtils.verifySignature("ECDSA", this.sender, data, signature);
     }
 
     public float returnOutputsValue() {

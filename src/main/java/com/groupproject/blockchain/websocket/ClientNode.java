@@ -71,10 +71,14 @@ public class ClientNode extends WebSocketClient {
                 if (transactionPool.size() >= transactionsPerBlock){
                     Block block = generateNextBlock();
                     block.addCoinbaseTx(this.wallet);
+                    ArrayList<Transaction> toDelete = new ArrayList<Transaction>();
                     for (Transaction currentTransaction: transactionPool){
-                        block.addTransaction(currentTransaction);
-                        transactionPool.remove(currentTransaction);
+                       boolean retValue = block.addTransaction(currentTransaction);
+                       if (retValue){
+                           toDelete.add(currentTransaction);
+                       }
                     }
+                    transactionPool.removeAll(toDelete);
                     block.mineBlock();
                     blockChain.add(block);
                     broadBlock(block);
