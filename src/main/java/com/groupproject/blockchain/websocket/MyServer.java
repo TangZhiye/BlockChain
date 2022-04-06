@@ -11,6 +11,7 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,8 +28,8 @@ public class MyServer extends WebSocketServer {
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+        System.out.println(conn);
         System.out.println(conn.getRemoteSocketAddress()  + "close");
-        clientMap.remove(conn.getRemoteSocketAddress().toString());
     }
 
 
@@ -43,18 +44,18 @@ public class MyServer extends WebSocketServer {
             //2. According to the bean.type do different transfer job
             //  1 -- > Transaction
             //  2 -- > 区块
+            Collection<WebSocket> connections = getConnections();
             if(messageBean.type == 1){
                 System.out.println(messageBean.msg);
 /*
                 Transaction transaction = objectMapper.readValue(messageBean.msg, Transaction.class);
 */
-                for(Map.Entry entry : clientMap.entrySet()){
-                    if(!conn.getRemoteSocketAddress().toString().equals(((String) entry.getKey()))){
-
-                        WebSocket currentClient = (WebSocket) entry.getValue();
-                        currentClient.send(message);
+                    for (WebSocket connection : connections) {
+                        if(!connection.getRemoteSocketAddress().toString().equals(conn.getRemoteSocketAddress().toString())){
+                            connection.send(message);
+                        }
                     }
-                }
+
             }
             else if(messageBean.type == 2){
                 //do the block job
@@ -62,10 +63,10 @@ public class MyServer extends WebSocketServer {
 /*
                 Block block = objectMapper.readValue(messageBean.msg, Block.class);
 */
-                for(Map.Entry entry : clientMap.entrySet()){
-                    if(!conn.getRemoteSocketAddress().toString().equals(((String) entry.getKey()))){
-                        WebSocket currentClient = (WebSocket) entry.getValue();
-                        currentClient.send(message);
+
+                for (WebSocket connection : connections) {
+                    if(!connection.getRemoteSocketAddress().toString().equals(conn.getRemoteSocketAddress().toString())){
+                        connection.send(message);
                     }
                 }
             }
@@ -94,7 +95,7 @@ public class MyServer extends WebSocketServer {
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
         System.out.println(webSocket.getRemoteSocketAddress() + "connect successfully");
         System.out.println("open the server");
-        clientMap.put(webSocket.getRemoteSocketAddress().toString(), webSocket);
+
     }
 
     public static void main(String[] args) {

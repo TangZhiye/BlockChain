@@ -45,6 +45,7 @@ public class RandomTransactionGenerator extends WebSocketClient {
             String msg = objectMapper.writeValueAsString(messageBean);
             send(msg);
 
+
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
