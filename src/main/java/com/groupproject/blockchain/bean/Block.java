@@ -46,7 +46,7 @@ public class Block implements Serializable {
     public String getHash(){
         String value = Sha256Util.applySha256(
                 Integer.toString(index)+ Long.toString(timeStamp)
-                + previousHash + Integer.toString(nonce) +
+                + previousHash + Integer.toString(nonce) + Integer.toString(difficulty) +
                         data
         );
         return value;
