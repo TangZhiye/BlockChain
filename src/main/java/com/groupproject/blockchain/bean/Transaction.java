@@ -59,7 +59,7 @@ public class Transaction implements Serializable {
         }
         //Check if transaction is valid:
         if(returnInputsValue() < BlockChain.minimumTransaction) {
-            System.out.println("Transaction Inputs to small: " + returnInputsValue());
+            System.out.println("Transaction Inputs too small: " + returnInputsValue());
             return false;
         }
         //Generate transaction outputs:

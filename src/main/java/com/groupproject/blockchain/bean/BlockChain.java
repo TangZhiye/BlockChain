@@ -30,33 +30,36 @@ public class BlockChain {
         blockChain.add(genesisBlock);
 
         //testing
-        System.out.println("\nWalletA's balance is: " + walletA.getBalance()); //50
-        System.out.println("\nWalletA is Attempting to send funds (40) to WalletB...");
+        System.out.println("\n1 WalletA's balance is: " + walletA.getBalance() + ",WalletB's balance is: " + walletB.getBalance()); //50,0
+        System.out.println("\n2 WalletA is Attempting to send funds (20 & 10) to WalletB...");
         Block block1 = generateNextBlock();
         block1.addCoinbaseTx(walletA);
+        System.out.println("\n3 WalletA's balance is: " + walletA.getBalance() + ",WalletB's balance is: " + walletB.getBalance()); //100,0
         block1.addTransaction(walletA.sendFunds(walletB.publicKey, 20f));
+        System.out.println("\n4 WalletA's balance is: " + walletA.getBalance() + ",WalletB's balance is: " + walletB.getBalance()); //80,20
         block1.addTransaction(walletA.sendFunds(walletB.publicKey, 10f));
+        System.out.println("\n5 WalletA's balance is: " + walletA.getBalance() + ",WalletB's balance is: " + walletB.getBalance()); //70,30
         block1.mineBlock();
         blockChain.add(block1);
-        System.out.println("\nWalletA's balance is: " + walletA.getBalance()); //20
-        System.out.println("WalletB's balance is: " + walletB.getBalance()); //30
+        System.out.println("\n6 WalletA's balance is: " + walletA.getBalance() + ",WalletB's balance is: " + walletB.getBalance()); //70,30
+//        System.out.println("WalletB's balance is: " + walletB.getBalance()); //30
 
         System.out.println("\nWalletA Attempting to send more funds (1000) than it has...");
         Block block2 = generateNextBlock();
         block2.addCoinbaseTx(walletA);
+        System.out.println("\n7 WalletA's balance is: " + walletA.getBalance() + ",WalletB's balance is: " + walletB.getBalance()); //120,30
         block2.addTransaction(walletA.sendFunds(walletB.publicKey, 1000f));
+        System.out.println("\n8 WalletA's balance is: " + walletA.getBalance() + ",WalletB's balance is: " + walletB.getBalance()); //120,30
         block2.mineBlock();
         blockChain.add(block2);
-        System.out.println("\nWalletA's balance is: " + walletA.getBalance()); //70
-        System.out.println("WalletB's balance is: " + walletB.getBalance()); //30
+        System.out.println("\n9 WalletA's balance is: " + walletA.getBalance() + ",WalletB's balance is: " + walletB.getBalance()); //120,30
 
         System.out.println("\nWalletB is Attempting to send funds (20) to WalletA...");
         Block block3 = generateNextBlock();
         block3.addTransaction(walletB.sendFunds( walletA.publicKey, 20)); //fail cuz no coinbase Tx
         block3.mineBlock();
         blockChain.add(block3);
-        System.out.println("\nWalletA's balance is: " + walletA.getBalance()); //70
-        System.out.println("WalletB's balance is: " + walletB.getBalance()); //30
+        System.out.println("\n10 WalletA's balance is: " + walletA.getBalance() + ",WalletB's balance is: " + walletB.getBalance()); //120,30
 
         //Validation
         if(isValidNewBlock()){

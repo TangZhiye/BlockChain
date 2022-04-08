@@ -96,7 +96,9 @@ public class Block implements Serializable {
         Transaction coinbaseTx = new Transaction(RSAUtils.getStringFromKey(coinbase.publicKey), coinbase.publicKey, RSAUtils.getStringFromKey(wallet.publicKey), 50f );
         coinbaseTx.isCoinbaseTx = true;
         coinbaseTx.generateSignature(coinbase.privateKey);	 //manually sign the genesis transaction
-        coinbaseTx.transactionId = "0"; //manually set the transaction id
+//        coinbaseTx.transactionId = "0"; //manually set the transaction id 要改成交易hash
+        coinbaseTx.transactionId = Sha256Util.applySha256(RSAUtils.getStringFromKey(coinbase.publicKey) +
+                RSAUtils.getStringFromKey(wallet.publicKey) + Float.toString(50) + index);
         coinbaseTx.outputs.add(new TxOut(coinbaseTx.recipient, coinbaseTx.value, coinbaseTx.transactionId)); //manually add the Transactions Output
         transactions.add(coinbaseTx);
         //Store coinbase transaction in the BlockChain UTXOs list.
