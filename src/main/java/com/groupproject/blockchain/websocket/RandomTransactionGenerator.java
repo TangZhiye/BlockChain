@@ -108,16 +108,17 @@ public class RandomTransactionGenerator extends WebSocketClient {
             client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
             System.out.println("Wallet A: " + walletA.getBalance()+ "Wallet B: " + walletB.getBalance());
             int x = 0;
-           while(x<4){
+           while(x<2){
                x++;
                client1.broadTransaction(walletB.sendFunds(walletA.publicKey, 5f));
                System.out.println("Wallet A: " + walletA.getBalance()+ "Wallet B: " + walletB.getBalance());
                client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
                System.out.println("Wallet A: " + walletA.getBalance()+ "Wallet B: " + walletB.getBalance());
                client1.broadTransaction(walletA.sendFunds(walletB.publicKey, 5f));
+               Thread.sleep(5000);
+
 
            }
-           Thread.sleep(5000);
 
 
             //The transaction is just a sample test, you can replace with our new Transaction class
