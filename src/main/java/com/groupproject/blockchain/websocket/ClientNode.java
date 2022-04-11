@@ -37,6 +37,9 @@ public class ClientNode extends WebSocketClient {
 
 
     public ArrayList<Transaction> transactionPool = new ArrayList<Transaction>();
+
+
+
     public ClientNode(URI serverUri, String name, Wallet wallet) {
         super(serverUri);
         this.name = name;
