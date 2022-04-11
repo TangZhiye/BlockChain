@@ -70,17 +70,17 @@ public class Block implements Serializable {
         System.out.println("Block Mined!!! : " + hash);
     }
 
-    //Add transactions to this block
+    //Add regular transactions to this block
     public boolean addTransaction(Transaction transaction) {
-        //process transaction and check if valid, unless block is genesis block then ignore.
+        // regular Tx only can be added after coinbase Tx
         if (transaction == null || transactions.isEmpty()) {
             System.out.println("Regular Transaction failed to add.");
             return false;}
-        if ((!previousHash.equals("0"))) {
-            if ((!transaction.processTransaction())) {
-                System.out.println("Transaction failed to process. Discarded.");
-                return false;
-            }
+//        if ((!previousHash.equals("0"))) {
+//        }
+        if ((!transaction.processTransaction())) {
+            System.out.println("Transaction failed to process. Discarded.");
+            return false;
         }
         transactions.add(transaction);
         System.out.println("Regular Transaction Successfully added to Block");

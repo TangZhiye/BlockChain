@@ -25,7 +25,6 @@ public class BlockChain {
         //generate genesis block
         Block genesisBlock = new Block("0", 0, 1);
         genesisBlock.addCoinbaseTx(walletA);
-//        genesisBlock.addTransaction(genesisTransaction);
         genesisBlock.mineBlock();
         blockChain.add(genesisBlock);
 
