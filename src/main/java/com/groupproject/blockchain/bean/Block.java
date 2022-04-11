@@ -46,7 +46,7 @@ public class Block implements Serializable {
     public String getHash(){
         String value = Sha256Util.applySha256(
                 Integer.toString(index)+ Long.toString(timeStamp)
-                + previousHash + Integer.toString(nonce) +
+                + previousHash + Integer.toString(nonce) + Integer.toString(difficulty) +
                         data
         );
         return value;
@@ -70,17 +70,17 @@ public class Block implements Serializable {
         System.out.println("Block Mined!!! : " + hash);
     }
 
-    //Add transactions to this block
+    //Add regular transactions to this block
     public boolean addTransaction(Transaction transaction) {
-        //process transaction and check if valid, unless block is genesis block then ignore.
+        // regular Tx only can be added after coinbase Tx
         if (transaction == null || transactions.isEmpty()) {
             System.out.println("Regular Transaction failed to add.");
             return false;}
-        if ((!previousHash.equals("0"))) {
-            if ((!transaction.processTransaction())) {
-                System.out.println("Transaction failed to process. Discarded.");
-                return false;
-            }
+//        if ((!previousHash.equals("0"))) {
+//        }
+        if ((!transaction.processTransaction())) {
+            System.out.println("Transaction failed to process. Discarded.");
+            return false;
         }
         transactions.add(transaction);
         System.out.println("Regular Transaction Successfully added to Block");
@@ -96,7 +96,9 @@ public class Block implements Serializable {
         Transaction coinbaseTx = new Transaction(RSAUtils.getStringFromKey(coinbase.publicKey), coinbase.publicKey, RSAUtils.getStringFromKey(wallet.publicKey), 50f );
         coinbaseTx.isCoinbaseTx = true;
         coinbaseTx.generateSignature(coinbase.privateKey);	 //manually sign the genesis transaction
-        coinbaseTx.transactionId = "0"; //manually set the transaction id
+//        coinbaseTx.transactionId = "0"; //manually set the transaction id 要改成交易hash
+        coinbaseTx.transactionId = Sha256Util.applySha256(RSAUtils.getStringFromKey(coinbase.publicKey) +
+                RSAUtils.getStringFromKey(wallet.publicKey) + Float.toString(50) + index);
         coinbaseTx.outputs.add(new TxOut(coinbaseTx.recipient, coinbaseTx.value, coinbaseTx.transactionId)); //manually add the Transactions Output
         transactions.add(coinbaseTx);
         //Store coinbase transaction in the BlockChain UTXOs list.
